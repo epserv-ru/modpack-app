@@ -13,7 +13,7 @@ function createWindow() {
         width: 1024,
         height: 768,
         show: false,
-        icon: path.join(__dirname, "assets", "img", "ep-logo.png"),
+        icon: path.join(__dirname, "assets", "img", "icons", "256x256.png"),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
