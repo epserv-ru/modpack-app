@@ -1,0 +1,106 @@
+const { app, BrowserWindow, ipcMain, dialog, shell} = require('electron');
+const path = require('path');
+const { parse, writeUncompressed } = require('prismarine-nbt');
+const fs = require('fs/promises');
+const zlib = require('zlib');
+const { promisify } = require('util');
+
+let mainWindow;
+const gzip = promisify(zlib.gzip);
+
+function createWindow() {
+    mainWindow = new BrowserWindow({
+        width: 1024,
+        height: 768,
+        show: false,
+        icon: path.join(__dirname, "assets", "img", "ep-logo.png"),
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+            nodeIntegration: false,
+            contextIsolation: true,
+        }
+    });
+
+    mainWindow.loadURL("http://localhost:5173/");
+    mainWindow.setMenuBarVisibility(false);
+    mainWindow.maximize();
+}
+
+app.whenReady().then(createWindow);
+
+app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") {
+        app.quit();
+    }
+});
+
+app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow();
+    }
+});
+
+ipcMain.handle('app:choose-directory', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openDirectory']
+    });
+    return canceled ? null : filePaths[0];
+});
+
+ipcMain.handle('app:save-file', async (_, filePath, buffer) => {
+    await fs.writeFile(filePath, Buffer.from(buffer));
+    return true;
+});
+
+ipcMain.handle('app:ensure-folder', async (_event, folderPath) => {
+    try {
+        await fs.access(folderPath).catch(async () => {
+            await fs.mkdir(folderPath, { recursive: true });
+        });
+        return true;
+    } catch (error) {
+        console.error('Ошибка при создании папки:', error);
+        return false;
+    }
+});
+
+ipcMain.handle('servers:add', (_evt, dir, newServers) =>
+    addServers(dir, newServers)
+        .then(() => ({ success: true }))
+        .catch(err => ({ success: false, error: err.message }))
+);
+
+async function addServers(dir, newServers) {
+    try {
+        const filePath = path.join(dir, 'servers.dat');
+        const raw = await fs.readFile(filePath);
+        const isGzipped = raw[0] === 0x1f && raw[1] === 0x8b;
+        const { parsed, type } = await parse(raw);
+        const root = parsed.value;
+        const serversListTag = root.servers;
+        const listArray      = serversListTag.value.value;
+
+        const existingIps = new Set(
+            listArray.map(tag => tag.ip.value)
+        );
+
+        newServers.forEach((srv, idx) => {
+            if (!existingIps.has(srv.ip)) {
+                const newCompound = {
+                    name:               { type: 'string', value: srv.name },
+                    hidden:             { type: 'byte',   value: srv.hidden ? 1 : 0 },
+                    acceptTextures:     { type: 'byte',   value: srv.acceptTextures ? 1 : 0 },
+                    preventsChatReports:{ type: 'byte',   value: srv.preventsChatReports ? 1 : 0 },
+                    ip:                 { type: 'string', value: srv.ip },
+                };
+                listArray.splice(idx, 0, newCompound);
+            }
+        });
+
+        const uncompressed = await writeUncompressed(parsed, type);
+        const finalBuf = isGzipped ? await gzip(uncompressed) : uncompressed;
+        await fs.writeFile(filePath, finalBuf);
+    } catch (err) {
+        console.error(err)
+    }
+}

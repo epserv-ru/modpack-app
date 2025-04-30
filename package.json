@@ -1,0 +1,42 @@
+{
+  "name": "ep-modpack",
+  "version": "2.0.0",
+  "description": "EP Modpack",
+  "main": "src/main.js",
+  "author": "Kurasava",
+  "email": "flashbladepoint@mail.ru",
+  "license": "ARR",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "@types/electron": "^1.4.38",
+    "@types/node": "^22.13.13",
+    "electron": "^35.0.3",
+    "electron-builder": "^25.1.8",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  },
+  "build": {
+    "appId": "ru.kurasava.modpack",
+    "productName": "EP Modpack",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/electron"
+    ],
+    "linux": {
+      "target": "AppImage"
+    },
+    "win": {
+      "target": "portable"
+    }
+  },
+  "dependencies": {
+    "prismarine-nbt": "^2.7.0"
+  }
+}
