@@ -12,7 +12,6 @@
     "dist": "electron-builder"
   },
   "devDependencies": {
-    "@types/electron": "^1.4.38",
     "@types/node": "^22.13.13",
     "electron": "^35.0.3",
     "electron-builder": "^25.1.8",
