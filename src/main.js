@@ -1,10 +1,10 @@
-const { app, BrowserWindow, ipcMain, dialog, shell} = require('electron');
+const { app, BrowserWindow, ipcMain, dialog} = require('electron');
 const path = require('path');
 const { parse, writeUncompressed } = require('prismarine-nbt');
 const fs = require('fs/promises');
 const zlib = require('zlib');
 const { promisify } = require('util');
-
+const {homedir} = require("node:os");
 let mainWindow;
 const gzip = promisify(zlib.gzip);
 
@@ -69,6 +69,35 @@ ipcMain.handle('servers:add', (_evt, dir, newServers) =>
         .then(() => ({ success: true }))
         .catch(err => ({ success: false, error: err.message }))
 );
+
+function getDefaultDir() {
+    const homeDir = homedir();
+    let dir = path.resolve(homeDir, ".minecraft");
+
+    const platform = process.platform;
+
+    if (platform === "win32") {
+        const appData = process.env.APPDATA;
+        if (appData) {
+            dir = path.resolve(appData, ".minecraft");
+        }
+    } else if (platform === "darwin") {
+        dir = path.resolve(homeDir, "Library", "Application Support", "minecraft");
+    } else if (platform === "linux") {
+        const flatPack = path.resolve(
+            homeDir,
+            ".var",
+            "app",
+            "com.mojang.Minecraft",
+            ".minecraft"
+        );
+        if (fs.existsSync(flatPack)) {
+            dir = flatPack;
+        }
+    }
+
+    return path.resolve(dir);
+}
 
 async function addServers(dir, newServers) {
     try {
