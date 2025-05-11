@@ -40,6 +40,10 @@ app.on("activate", () => {
     }
 });
 
+ipcMain.handle("app:get-default-dir", async () => {
+    return getDefaultDir();
+});
+
 ipcMain.handle('app:choose-directory', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
         properties: ['openDirectory']
