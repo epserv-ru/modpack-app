@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog} = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell} = require('electron');
 const path = require('path');
 const { parse, writeUncompressed } = require('prismarine-nbt');
 const fs = require('fs/promises');
@@ -22,6 +22,10 @@ function createWindow() {
     });
 
     mainWindow.loadURL("http://localhost:5173/");
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+        shell.openExternal(url);
+        return { action: "deny" };
+    });
     mainWindow.setMenuBarVisibility(false);
     mainWindow.maximize();
 }
