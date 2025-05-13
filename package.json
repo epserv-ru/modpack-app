@@ -9,7 +9,7 @@
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder --publish never"
   },
   "devDependencies": {
     "@types/node": "^22.13.13",
@@ -24,7 +24,6 @@
     "directories": {
       "output": "dist"
     },
-    "publish": "never",
     "files": [
       "**/*",
       "!node_modules/electron"
