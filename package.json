@@ -35,6 +35,10 @@
     "win": {
       "target": "portable",
       "icon": "src/assets/img/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "src/assets/img/war-crimes.icns"
     }
   },
   "dependencies": {
