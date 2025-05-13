@@ -1,5 +1,7 @@
 name: Build app distributions
-on: workflow_dispatch
+on:
+  push:
+    tags: '**'
 
 jobs:
   build:
