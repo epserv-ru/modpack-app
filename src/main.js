@@ -21,7 +21,7 @@ function createWindow() {
         }
     });
 
-    mainWindow.loadURL("http://localhost:5173/");
+    mainWindow.loadURL("http://modpack.epserv.ru/");
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         shell.openExternal(url);
         return { action: "deny" };
