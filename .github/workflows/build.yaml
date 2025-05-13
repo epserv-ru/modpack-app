@@ -19,6 +19,9 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - if: ${{ matrix.os == 'macos-13' }}
+        name: Install `dmg-license`
+        run: npm install dmg-license
       - name: Build the artifact
         run: npm run dist
       - name: Upload artifacts

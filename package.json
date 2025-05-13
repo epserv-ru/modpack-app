@@ -24,6 +24,7 @@
     "directories": {
       "output": "dist"
     },
+    "publish": "never",
     "files": [
       "**/*",
       "!node_modules/electron"
