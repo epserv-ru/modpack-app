@@ -38,7 +38,7 @@
     },
     "mac": {
       "target": "dmg",
-      "icon": "src/assets/img/war-crimes.icns"
+      "icon": "src/assets/img/mac.icns"
     }
   },
   "dependencies": {
