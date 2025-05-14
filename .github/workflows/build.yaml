@@ -1,12 +1,12 @@
 name: Build app distributions
 on:
-  push:
-    tags: '**'
+  release:
+    types: [created]
 
 jobs:
   build:
     permissions: 
-      contents: read
+      contents: write
     strategy:
       matrix:
         os: [ macos-13, windows-2019, ubuntu-22.04 ]
@@ -26,9 +26,7 @@ jobs:
         run: npm install dmg-license
       - name: Build the artifact
         run: npm run dist
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+      - name: Upload built artifact
+        uses: softprops/action-gh-release@v2.2.2
         with:
-          path: dist/${{ matrix.os == 'macos-13' && '*.dmg' || matrix.os == 'windows-2019' && '*.exe' || matrix.os == 'ubuntu-22.04' && '*.AppImage' }}
-          name: ${{ matrix.os }}-dist
-          if-no-files-found: error
+          files: dist/${{ matrix.os == 'macos-13' && '*.dmg' || matrix.os == 'windows-2019' && '*.exe' || matrix.os == 'ubuntu-22.04' && '*.AppImage' }}
