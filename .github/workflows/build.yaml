@@ -11,6 +11,8 @@ jobs:
       matrix:
         os: [ macos-13, windows-2019, ubuntu-22.04 ]
     runs-on: ${{ matrix.os }}
+    env:
+      ARTIFACT_GLOB: dist/${{ matrix.os == 'macos-13' && '*.dmg' || matrix.os == 'windows-2019' && '*.exe' || matrix.os == 'ubuntu-22.04' && '*.AppImage' }}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
@@ -26,7 +28,12 @@ jobs:
         run: npm install dmg-license
       - name: Build the artifact
         run: npm run dist
+      - name: Add OS and arch to files
+        shell: bash
+        run: |-
+          I=`ls --color=never -1 ${{ env.ARTIFACT_GLOB }}`
+          echo $I | sed -E 's|(.*)\.(.*)|\1-${{ runner.os }}-${{ runner.arch }}\.\2|g' | tr -d '\r\n\f\b' | xargs -0 mv "$I"
       - name: Upload built artifact
         uses: softprops/action-gh-release@v2.2.2
         with:
-          files: dist/${{ matrix.os == 'macos-13' && '*.dmg' || matrix.os == 'windows-2019' && '*.exe' || matrix.os == 'ubuntu-22.04' && '*.AppImage' }}
+          files: ${{ env.ARTIFACT_GLOB }}
