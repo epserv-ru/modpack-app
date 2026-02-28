@@ -9,7 +9,7 @@
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder --publish never"
   },
   "devDependencies": {
     "@types/node": "^22.13.13",
@@ -35,6 +35,10 @@
     "win": {
       "target": "portable",
       "icon": "src/assets/img/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "src/assets/img/mac.icns"
     }
   },
   "dependencies": {
