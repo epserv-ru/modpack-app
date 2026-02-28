@@ -13,16 +13,21 @@ function createWindow() {
         width: 1024,
         height: 768,
         show: false,
+        frame: false,
         icon: path.join(__dirname, "assets", "img", "icons", "256x256.png"),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
             contextIsolation: true,
+            partition: 'persist:ep-modpack'
         }
     });
 
-    mainWindow.loadURL("http://modpack.epserv.ru/");
+    mainWindow.loadURL("https://modpack.epserv.ru/");
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+        if (url.startsWith('https://modpack.epserv.ru/')) {
+            return { action: 'allow' };
+        }
         shell.openExternal(url);
         return { action: "deny" };
     });
@@ -77,6 +82,24 @@ ipcMain.handle('servers:add', (_evt, dir, newServers) =>
         .then(() => ({ success: true }))
         .catch(err => ({ success: false, error: err.message }))
 );
+
+ipcMain.on('window:minimize', () => {
+    if (mainWindow) mainWindow.minimize();
+});
+
+ipcMain.on('window:maximize', () => {
+    if (mainWindow) {
+        if (mainWindow.isMaximized()) {
+            mainWindow.unmaximize();
+        } else {
+            mainWindow.maximize();
+        }
+    }
+});
+
+ipcMain.on('window:close', () => {
+    if (mainWindow) mainWindow.close();
+});
 
 function getDefaultDir() {
     const homeDir = homedir();

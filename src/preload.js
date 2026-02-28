@@ -6,4 +6,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     saveFile: (filePath, buffer) => ipcRenderer.invoke('app:save-file', filePath, buffer),
     addServers: (minecraftDir, serversArray) => ipcRenderer.invoke('servers:add', minecraftDir, serversArray),
     getDefaultDir: () => ipcRenderer.invoke("app:get-default-dir"),
+    isElectron: true,
+    minimizeWindow: () => ipcRenderer.send('window:minimize'),
+    maximizeWindow: () => ipcRenderer.send('window:maximize'),
+    closeWindow: () => ipcRenderer.send('window:close'),
 });
