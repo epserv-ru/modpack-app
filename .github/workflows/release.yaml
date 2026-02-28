@@ -13,7 +13,7 @@ jobs:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
     runs-on: ${{ matrix.os }}
     env:
-      ARTIFACT_GLOB: dist/${{ startsWith(matrix.os, 'macos') && '*.dmg' || startsWith(matrix.os, 'windows') && '*.exe' || startsWith(matrix.os, 'linux') && '*.AppImage' }}
+      ARTIFACT_GLOB: dist/${{ startsWith(matrix.os, 'macos') && '*.dmg' || startsWith(matrix.os, 'windows') && '*.exe' || startsWith(matrix.os, 'ubuntu') && '*.AppImage' }}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
