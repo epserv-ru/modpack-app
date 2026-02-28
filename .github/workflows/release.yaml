@@ -40,11 +40,11 @@ jobs:
       - name: Build the artifact
         run: pnpm run dist
 
-      - name: Add OS and arch to files
-        shell: bash
-        run: |-
-          I=$(ls -1 ${{ env.ARTIFACT_GLOB }} | head -n1)
-          mv "$I" "${I%.*}-${{ runner.os }}-${{ runner.arch }}.${I##*.}"
+      # - name: Add OS and arch to files
+      #   shell: bash
+      #   run: |-
+      #     I=$(ls -1 ${{ env.ARTIFACT_GLOB }} | head -n1)
+      #     mv "$I" "${I%.*}-${{ runner.os }}-${{ runner.arch }}.${I##*.}"
 
       - if: ${{ github.event_name == 'release' }}
         name: Upload built artifact

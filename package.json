@@ -21,6 +21,7 @@
   "build": {
     "appId": "ru.kurasava.modpack",
     "productName": "EP Modpack",
+    "artifactName": "EP.Modpack-${version}-${os}-${arch}.${ext}",
     "directories": {
       "output": "dist"
     },
