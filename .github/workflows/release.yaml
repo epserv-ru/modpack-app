@@ -17,23 +17,35 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
       - name: Setup Node.JS
         uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: pnpm
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile 
+
       - if: ${{ startsWith(matrix.os, 'macos') }}
         name: Install `dmg-license`
         run: pnpm add dmg-license
+
       - name: Build the artifact
         run: pnpm run dist
+
       - name: Add OS and arch to files
         shell: bash
         run: |-
           I=$(ls -1 ${{ env.ARTIFACT_GLOB }} | head -n1)
           mv "$I" "${I%.*}-${{ runner.os }}-${{ runner.arch }}.${I##*.}"
+
       - if: ${{ github.event_name == 'release' }}
         name: Upload built artifact
         uses: softprops/action-gh-release@v2.2.2
