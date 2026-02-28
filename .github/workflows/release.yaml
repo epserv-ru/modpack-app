@@ -2,6 +2,7 @@ name: Build app distributions
 on:
   release:
     types: [created]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -9,31 +10,32 @@ jobs:
       contents: write
     strategy:
       matrix:
-        os: [ macos-14, windows-2022, ubuntu-22.04 ]   # обновлённые версии
+        os: [ macos-latest, windows-latest, ubuntu-latest ]
     runs-on: ${{ matrix.os }}
     env:
-      ARTIFACT_GLOB: dist/${{ matrix.os == 'macos-14' && '*.dmg' || matrix.os == 'windows-2022' && '*.exe' || matrix.os == 'ubuntu-22.04' && '*.AppImage' }}
+      ARTIFACT_GLOB: dist/${{ startsWith(matrix.os, 'macos') && '*.dmg' || startsWith(matrix.os, 'windows') && '*.exe' || startsWith(matrix.os, 'linux') && '*.AppImage' }}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
       - name: Setup Node.JS
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
-          cache: npm
+          node-version: 24
+          cache: pnpm
       - name: Install dependencies
-        run: npm ci
-      - if: ${{ matrix.os == 'macos-14' }}
+        run: pnpm install --frozen-lockfile 
+      - if: ${{ startsWith(matrix.os, 'macos') }}
         name: Install `dmg-license`
-        run: npm install dmg-license
+        run: pnpm add dmg-license
       - name: Build the artifact
-        run: npm run dist
+        run: pnpm run dist
       - name: Add OS and arch to files
         shell: bash
         run: |-
           I=$(ls -1 ${{ env.ARTIFACT_GLOB }} | head -n1)
           mv "$I" "${I%.*}-${{ runner.os }}-${{ runner.arch }}.${I##*.}"
-      - name: Upload built artifact
+      - if: ${{ github.event_name == 'release' }}
+        name: Upload built artifact
         uses: softprops/action-gh-release@v2.2.2
         with:
           files: ${{ env.ARTIFACT_GLOB }}
