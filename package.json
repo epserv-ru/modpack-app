@@ -14,7 +14,7 @@
   "devDependencies": {
     "@types/node": "^22.13.13",
     "electron": "38.0.0-beta.6",
-    "electron-builder": "^25.1.8",
+    "electron-builder": "^26.15.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
   },
@@ -22,7 +22,6 @@
     "appId": "ru.kurasava.modpack",
     "productName": "EP Modpack",
     "artifactName": "EP.Modpack-${version}-${os}-${arch}.${ext}",
-    "afterPack": "build/adhoc-sign.js",
     "directories": {
       "output": "dist"
     },
@@ -40,7 +39,8 @@
     },
     "mac": {
       "target": "dmg",
-      "icon": "src/assets/img/mac.icns"
+      "icon": "src/assets/img/mac.icns",
+      "identity": "-"
     }
   },
   "dependencies": {
