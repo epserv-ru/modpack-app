@@ -22,6 +22,7 @@
     "appId": "ru.kurasava.modpack",
     "productName": "EP Modpack",
     "artifactName": "EP.Modpack-${version}-${os}-${arch}.${ext}",
+    "afterPack": "build/adhoc-sign.js",
     "directories": {
       "output": "dist"
     },
