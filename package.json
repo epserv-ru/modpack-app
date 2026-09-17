@@ -1,6 +1,6 @@
 {
   "name": "ep-modpack",
-  "version": "2.1.0",
+  "version": "2.1.3",
   "description": "EP Modpack",
   "main": "src/main.js",
   "author": "Kurasava",
