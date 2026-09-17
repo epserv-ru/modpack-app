@@ -1,13 +1,11 @@
-name: Build app distributions
+name: Release
 on:
   release:
-    types: [created]
+    types: [published]
   workflow_dispatch:
 
 jobs:
   build:
-    permissions:
-      contents: write
     strategy:
       matrix:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
@@ -16,22 +14,18 @@ jobs:
       ARTIFACT_GLOB: dist/${{ startsWith(matrix.os, 'macos') && '*.dmg' || startsWith(matrix.os, 'windows') && '*.exe' || startsWith(matrix.os, 'ubuntu') && '*.AppImage' }}
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/setup@v2
         with:
-          version: 10
-          run_install: false
-
-      - name: Setup Node.JS
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
+          version: ^12.0.0
+          runtime: node@24
+          cache: true
+          install: false
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile 
+        run: pnpm install --frozen-lockfile
 
       - if: ${{ startsWith(matrix.os, 'macos') }}
         name: Install `dmg-license`
@@ -40,14 +34,27 @@ jobs:
       - name: Build the artifact
         run: pnpm run dist
 
-      # - name: Add OS and arch to files
-      #   shell: bash
-      #   run: |-
-      #     I=$(ls -1 ${{ env.ARTIFACT_GLOB }} | head -n1)
-      #     mv "$I" "${I%.*}-${{ runner.os }}-${{ runner.arch }}.${I##*.}"
-
-      - if: ${{ github.event_name == 'release' }}
-        name: Upload built artifact
-        uses: softprops/action-gh-release@v2.2.2
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
         with:
-          files: ${{ env.ARTIFACT_GLOB }}
+          path: ${{ env.ARTIFACT_GLOB }}
+          archive: false
+
+  publish:
+    if: ${{ github.event_name == 'release' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs: build
+    steps:
+      - name: Fetch build artifacts
+        uses: actions/download-artifact@v8
+        with:
+          skip-decompress: true
+          merge-multiple: true
+          path: ./dist
+
+      - name: Upload artifacts to the release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: "dist/*"
