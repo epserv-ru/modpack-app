@@ -1,10 +1,11 @@
-const { app, BrowserWindow, ipcMain, dialog, shell} = require('electron');
-const path = require('path');
-const { parse, writeUncompressed } = require('prismarine-nbt');
-const fs = require('node:fs/promises');
-const zlib = require('zlib');
-const { promisify } = require('util');
-const {homedir} = require("node:os");
+import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
+import * as path from 'node:path';
+import { parse, writeUncompressed } from 'prismarine-nbt';
+import * as fs from 'node:fs/promises';
+import * as zlib from 'node:zlib';
+import { promisify } from 'node:util';
+import { homedir } from 'node:os';
+
 let mainWindow;
 const gzip = promisify(zlib.gzip);
 
@@ -14,28 +15,28 @@ function createWindow() {
         height: 768,
         show: false,
         frame: false,
-        icon: path.join(__dirname, "assets", "img", "icons", "256x256.png"),
+        icon: path.join(import.meta.dirname, "assets", "img", "icons", "256x256.png"),
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
+            preload: path.join(import.meta.dirname, 'preload.js'),
             nodeIntegration: false,
             contextIsolation: true,
             partition: 'persist:ep-modpack'
         }
     });
 
-    mainWindow.loadURL("https://modpack.epserv.ru/");
+    void mainWindow.loadURL("https://modpack.epserv.ru/");
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         if (url.startsWith('https://modpack.epserv.ru/')) {
             return { action: 'allow' };
         }
-        shell.openExternal(url);
+        void shell.openExternal(url);
         return { action: "deny" };
     });
     mainWindow.setMenuBarVisibility(false);
     mainWindow.maximize();
 }
 
-app.whenReady().then(createWindow);
+void app.whenReady().then(createWindow);
 
 app.on("window-all-closed", () => {
     if (process.platform !== "darwin") {

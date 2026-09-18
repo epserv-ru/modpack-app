@@ -2,6 +2,7 @@
   "name": "ep-modpack",
   "version": "2.1.3",
   "description": "EP Modpack",
+  "type": "module",
   "main": "src/main.js",
   "author": "Kurasava",
   "email": "flashbladepoint@mail.ru",
@@ -9,12 +10,16 @@
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder --publish never"
+    "dist": "electron-builder --publish never",
+    "lint": "eslint"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^24",
     "electron": "^44.4.2",
-    "electron-builder": "^26.15.3"
+    "electron-builder": "^26.15.3",
+    "eslint": "^10.10.0",
+    "globals": "^17.12.0"
   },
   "build": {
     "appId": "ru.kurasava.modpack",
