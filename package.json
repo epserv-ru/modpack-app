@@ -12,11 +12,9 @@
     "dist": "electron-builder --publish never"
   },
   "devDependencies": {
-    "@types/node": "^22.13.13",
-    "electron": "38.0.0-beta.6",
-    "electron-builder": "^26.15.3",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.2"
+    "@types/node": "^24",
+    "electron": "^44.4.2",
+    "electron-builder": "^26.15.3"
   },
   "build": {
     "appId": "ru.kurasava.modpack",
@@ -44,6 +42,6 @@
     }
   },
   "dependencies": {
-    "prismarine-nbt": "^2.7.0"
+    "prismarine-nbt": "^2.8.0"
   }
 }

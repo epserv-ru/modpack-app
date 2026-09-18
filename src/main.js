@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, shell} = require('electron');
 const path = require('path');
 const { parse, writeUncompressed } = require('prismarine-nbt');
-const fs = require('fs/promises');
+const fs = require('node:fs/promises');
 const zlib = require('zlib');
 const { promisify } = require('util');
 const {homedir} = require("node:os");
@@ -50,7 +50,7 @@ app.on("activate", () => {
 });
 
 ipcMain.handle("app:get-default-dir", async () => {
-    return getDefaultDir();
+    return await getDefaultDir();
 });
 
 ipcMain.handle('app:choose-directory', async () => {
@@ -101,7 +101,7 @@ ipcMain.on('window:close', () => {
     if (mainWindow) mainWindow.close();
 });
 
-function getDefaultDir() {
+async function getDefaultDir() {
     const homeDir = homedir();
     let dir = path.resolve(homeDir, ".minecraft");
 
@@ -122,7 +122,8 @@ function getDefaultDir() {
             "com.mojang.Minecraft",
             ".minecraft"
         );
-        if (fs.existsSync(flatPack)) {
+        const flatpakAccess = await fs.access(flatPack).then(() => true).catch(() => false)
+        if (flatpakAccess) {
             dir = flatPack;
         }
     }
@@ -157,7 +158,7 @@ async function addServers(dir, newServers) {
             }
         });
 
-        const uncompressed = await writeUncompressed(parsed, type);
+        const uncompressed = writeUncompressed(parsed, type);
         const finalBuf = isGzipped ? await gzip(uncompressed) : uncompressed;
         await fs.writeFile(filePath, finalBuf);
     } catch (err) {
