@@ -1,10 +1,11 @@
-const { app, BrowserWindow, ipcMain, dialog, shell} = require('electron');
-const path = require('path');
-const { parse, writeUncompressed } = require('prismarine-nbt');
-const fs = require('fs/promises');
-const zlib = require('zlib');
-const { promisify } = require('util');
-const {homedir} = require("node:os");
+import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
+import * as path from 'node:path';
+import { parse, writeUncompressed } from 'prismarine-nbt';
+import * as fs from 'node:fs/promises';
+import * as zlib from 'node:zlib';
+import { promisify } from 'node:util';
+import { homedir } from 'node:os';
+
 let mainWindow;
 const gzip = promisify(zlib.gzip);
 
@@ -14,28 +15,28 @@ function createWindow() {
         height: 768,
         show: false,
         frame: false,
-        icon: path.join(__dirname, "assets", "img", "icons", "256x256.png"),
+        icon: path.join(import.meta.dirname, "assets", "img", "icons", "256x256.png"),
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
+            preload: path.join(import.meta.dirname, 'preload.js'),
             nodeIntegration: false,
             contextIsolation: true,
             partition: 'persist:ep-modpack'
         }
     });
 
-    mainWindow.loadURL("https://modpack.epserv.ru/");
+    void mainWindow.loadURL("https://modpack.epserv.ru/");
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         if (url.startsWith('https://modpack.epserv.ru/')) {
             return { action: 'allow' };
         }
-        shell.openExternal(url);
+        void shell.openExternal(url);
         return { action: "deny" };
     });
     mainWindow.setMenuBarVisibility(false);
     mainWindow.maximize();
 }
 
-app.whenReady().then(createWindow);
+void app.whenReady().then(createWindow);
 
 app.on("window-all-closed", () => {
     if (process.platform !== "darwin") {
@@ -50,7 +51,7 @@ app.on("activate", () => {
 });
 
 ipcMain.handle("app:get-default-dir", async () => {
-    return getDefaultDir();
+    return await getDefaultDir();
 });
 
 ipcMain.handle('app:choose-directory', async () => {
@@ -101,7 +102,7 @@ ipcMain.on('window:close', () => {
     if (mainWindow) mainWindow.close();
 });
 
-function getDefaultDir() {
+async function getDefaultDir() {
     const homeDir = homedir();
     let dir = path.resolve(homeDir, ".minecraft");
 
@@ -122,7 +123,8 @@ function getDefaultDir() {
             "com.mojang.Minecraft",
             ".minecraft"
         );
-        if (fs.existsSync(flatPack)) {
+        const flatpakAccess = await fs.access(flatPack).then(() => true).catch(() => false)
+        if (flatpakAccess) {
             dir = flatPack;
         }
     }
@@ -157,7 +159,7 @@ async function addServers(dir, newServers) {
             }
         });
 
-        const uncompressed = await writeUncompressed(parsed, type);
+        const uncompressed = writeUncompressed(parsed, type);
         const finalBuf = isGzipped ? await gzip(uncompressed) : uncompressed;
         await fs.writeFile(filePath, finalBuf);
     } catch (err) {
